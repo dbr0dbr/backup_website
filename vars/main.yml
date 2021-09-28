@@ -1,0 +1,27 @@
+proxy_env: {"http_proxy" : "http://192.168.121.1:8888", "https_proxy" : "https://192.168.121.1:8888", "no_proxy" : ".atbmarket.com,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"}
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
+#Точка монтирования шары
+share_dir: '/mnt/BACKUP'
+#Путь к шаре
+share_path: '//192.168.121.226/backup'
+#Папка, в которую будут делаться бэкапы
+target_dir: '/mnt/BACKUP/web-service/site/'
+#Папка для скриптов
+scripts_dir: /etc/tools
+#Время ожидания перед попыткой перемонтировать шару
+mount_timeout: '30'
+#Сколько дней хранить бэкап файлов
+store_days_www: '5'
+#Сколько дней хранить бэкап базы
+store_days_db: '30'
+backup_www_log: /var/log/backup.log
+backup_db_log: /var/log/backup.log
+
+backup_www_hour: '23'
+backup_www_min: '30'
+
+backup_db_hour: '1'
+backup_db_min: '0'
+
+ 

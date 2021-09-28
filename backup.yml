@@ -1,0 +1,9 @@
+- hosts: web
+  remote_user: root
+  roles:
+    - backup
+  vars_files:
+    - ./vars/main.yml
+    - ./vars/credentials.yml 
+  environment:
+    '{{ proxy_env }}'

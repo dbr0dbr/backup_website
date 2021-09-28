@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Backup_db - Резервное копирование баз данных с удалением старых копий.
+
+ NORMAL="$(echo -e '\033[0;39m')"
+   BLUE="$(echo -e '\033[1;34m')"
+   CYAN="$(echo -e '\033[1;36m')"
+  GREEN="$(echo -e '\033[1;32m')"
+MAGENTA="$(echo -e '\033[1;35m')"
+    RED="$(echo -e '\033[1;31m')"
+ YELLOW="$(echo -e '\033[1;33m')"
+
+TARGETDIR={{ target_dir }}
+timeout={{ mount_timeout }}
+MARKERFILE={{ share_dir }}/DO_NOT_DELETE.txt
+DAYD={{ store_days_db }}
+
+DATADIR=$TARGETDIR/`date +%Y-%m-%d`/DB
+
+EXCLUDED_DB=(
+ information_schema
+ performance_schema
+)
+
+if [ ! -f "$MARKERFILE" ]; then mount "$TARGETDIR" > /dev/null  2>&1 ; fi
+if [ ! -f "$MARKERFILE" ]; then sleep $timeout; mount "$TARGETDIR" > /dev/null 2>&1; fi
+if [ ! -f "$MARKERFILE" ]; then echo $RED"ERROR!!! Backup server not mount "$NORMAL; exit 1 ; fi
+
+if [ ! -d "$DATADIR" ]; then
+  mkdir -p $DATADIR
+fi
+
+dblist=`mysql -e "show databases" | sed -n '2,$ p'`
+if [ -z $dblist ]; then echo $RED"ERROR!!! Cannot find databases"$NORMAL; exit 1; fi
+
+for db in $dblist; do
+  if [[ ! " ${EXCLUDED_DB[@]} " =~ " ${db} " ]]; then
+    mysqldump $db > $DATADIR/$db.sql
+    if [[ $? -gt 0 ]]; then echo $RED"ERROR!!! Dumping database [$db] failed. "$NORMAL; exit 1; fi
+    cat $DATADIR/$db.sql | gzip --best > $DATADIR/$db-`date +%F--%H-%M`.sql.gz
+    if [[ $? -gt 0 ]]; then echo $RED"ERROR!!! Compression database [$db] failed. "$NORMAL; exit 1; fi
+    rm -f $DATADIR/$db.sql
+    echo $GREEN"Dumping database [$db] - successfull."$NORMAL
+  fi
+done
+find $TARGETDIR -name '*.sql.gz' -type f -atime +$DAYD -delete
+find $TARGETDIR -type d -empty -exec rmdir {} \;
+echo $GREEN"OK!!!"$NORMAL && exit 0
+

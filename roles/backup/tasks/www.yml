@@ -1,0 +1,21 @@
+- name: ensures {{ scripts_dir }} dir exists
+  file: 
+    path: '{{ scripts_dir }}' 
+    state: directory
+
+- name: Template configuration file backup_www.sh
+  template:
+    src: backup_www.sh.j2
+    dest: '{{ scripts_dir }}/backup_www.sh'
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Creates a cron file for suite backup in /etc/cron.d
+  cron:
+    name: backup_www
+    minute: "{{ backup_www_min }}"
+    hour: "{{ backup_www_hour }}"
+    user: root
+    job: "{{ scripts_dir }}/backup_www.sh >> {{ backup_www_log }} 2>&1"
+    cron_file: backup_www

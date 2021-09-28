@@ -1,0 +1,22 @@
+- name: ensures {{ scripts_dir }} dir exists
+  file: 
+    path: '{{ scripts_dir }}' 
+    state: directory
+
+- name: Template configuration file backup_db.sh
+  template:
+    src: backup_db.sh.j2
+    dest: '{{ scripts_dir }}/backup_db.sh'
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Creates a cron file for full db backup in /etc/cron.d
+  cron:
+    name: backup_db
+    minute: "{{ backup_db_min }}"
+    hour: "{{ backup_db_hour }}"
+    user: root
+    job: "{{ scripts_dir }}/backup_db.sh >> {{ backup_db_log }} 2>&1"
+    cron_file: backup_db
+

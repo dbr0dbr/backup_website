@@ -1,0 +1,19 @@
+share_dir: '/mnt/BACKUP'
+share_path: '//192.168.121.226/backup'
+target_dir: '/mnt/BACKUP/web-service/www.atbmarket.com/'
+scripts_dir: /etc/tools
+
+backup_user: 'rmsuser'
+backup_pass: '11111111'
+mount_timeout: '30'
+
+backup_www_log: /var/log/backup.log
+backup_db_log: /var/log/backup.log
+
+backup_www_hour: 23
+backup_www_min: 30
+
+backup_db_hour: 1
+backup_db_min: 00
+
+
